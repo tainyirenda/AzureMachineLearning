@@ -1,0 +1,5 @@
+{
+  "name":"azure-ml",
+  "resource_group":"TaiN_RG",
+  "create_workspace:"true"
+}
