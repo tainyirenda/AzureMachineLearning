@@ -1,0 +1,89 @@
+amlModuleIdentifier:
+  namespace: azureml
+  moduleName: Two-Class Logistic Regression
+  moduleVersion: 0.0.177
+meta:
+  collectLogs: true
+metadata:
+  annotations:
+    tags: []
+    familyId: b0fd7660-eeed-43c5-9487-20d9cc79ed5d
+    contact: Microsoft Corporation
+    helpDocument: https://aka.ms/aml/two-class-logistic-regression
+category: Machine Learning Algorithms/Classification
+description: Creates a two-class logistic regression model.
+isDeterministic: true
+inputs:
+- name: Create trainer mode
+  type: Mode
+  default: SingleParameter
+  description: Create advanced learner options
+  options:
+  - SingleParameter:
+    - name: Optimization Tolerance
+      type: Float
+      label: Optimization tolerance
+      default: 1e-07
+      description: Specify a tolerance value for the L-BFGS optimizer
+      min: 2.220446049250313e-16
+    - name: L2 Regularizaton weight
+      type: Float
+      label: L2 regularization weight
+      default: 1.0
+      description: Specify the L2 regularization weight. Use a non-zero value to avoid
+        overfitting.
+      min: 0
+  - ParameterRange:
+    - name: Range for optimization tolerance
+      type: ParameterRange
+      label: Optimization tolerance
+      default: 0.00001; 0.00000001
+      description: Specify a range for the tolerance value for the L-BFGS optimizer
+    - name: Range for L2 regularization weight
+      type: ParameterRange
+      label: L2 regularization weight
+      default: 0.01; 0.1; 1.0
+      description: Specify the range for the L2 regularization weight. Use a non-zero
+        value to avoid overfitting.
+- name: Random number seed
+  type: Int
+  optional: true
+  description: Type a value to seed the random number generator used by the model.
+    Leave blank for default.
+  min: 0
+  max: 4294967295
+outputs:
+- name: Untrained model
+  type: UntrainedModelDirectory
+  description: An untrained classification model
+implementation:
+  container:
+    amlEnvironment:
+      name: AzureML-Designer
+      version: '54'
+    command:
+    - python
+    - invoker.py
+    - python
+    - -m
+    - azureml.studio.modulehost.module_invoker
+    - --module-name=azureml.studio.modules.ml.initialize_models.binary_classifier.logistic_regression_biclassifier.logistic_regression_biclassifier
+    args:
+    - --create-trainer-mode
+    - inputValue: Create trainer mode
+    - - --optimization-tolerance
+      - inputValue: Optimization Tolerance
+    - - --l2-regularizaton-weight
+      - inputValue: L2 Regularizaton weight
+    - - --range-for-optimization-tolerance
+      - inputValue: Range for optimization tolerance
+    - - --range-for-l2-regularization-weight
+      - inputValue: Range for L2 regularization weight
+    - - --random-number-seed
+      - inputValue: Random number seed
+    - --untrained-model
+    - outputPath: Untrained model
+  servingEntry:
+    module: azureml.studio.modules.ml.initialize_models.binary_classifier.logistic_regression_biclassifier.logistic_regression_biclassifier
+    class: TwoClassLogisticRegressionModule
+    func: run

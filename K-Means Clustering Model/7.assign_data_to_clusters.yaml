@@ -1,0 +1,58 @@
+amlModuleIdentifier:
+  namespace: azureml
+  moduleName: Assign Data to Clusters
+  moduleVersion: 0.0.177
+meta:
+  collectLogs: true
+metadata:
+  annotations:
+    tags: []
+    familyId: 20a0683a-07f9-4a08-a89b-44b3bbaae382
+    contact: Microsoft Corporation
+    helpDocument: https://aka.ms/aml/assign-data-to-clusters
+category: Model Scoring & Evaluation
+description: Assign data to clusters using an existing trained clustering model.
+isDeterministic: true
+inputs:
+- name: Trained model
+  type: ModelDirectory
+  description: Trained clustering model
+- name: Dataset
+  type: DataFrameDirectory
+  description: Input data source
+- name: Check for Append or Uncheck for Result Only
+  type: Boolean
+  label: Check for append or uncheck for result only
+  default: true
+  description: Whether output dataset must contain input dataset appended by assignments
+    column (Checked) or assignments column only (Unchecked)
+outputs:
+- name: Results dataset
+  type: DataFrameDirectory
+  description: Input dataset appended by data column of assignments or assignments
+    column only
+implementation:
+  container:
+    amlEnvironment:
+      name: AzureML-Designer
+      version: '54'
+    command:
+    - python
+    - invoker.py
+    - python
+    - -m
+    - azureml.studio.modulehost.module_invoker
+    - --module-name=azureml.studio.modules.ml.score.assign_data_to_clusters.assign_data_to_clusters
+    args:
+    - --trained-model
+    - inputPath: Trained model
+    - --dataset
+    - inputPath: Dataset
+    - --check-for-append-or-uncheck-for-result-only
+    - inputValue: Check for Append or Uncheck for Result Only
+    - --results-dataset
+    - outputPath: Results dataset
+  servingEntry:
+    module: azureml.studio.modules.ml.score.assign_data_to_clusters.assign_data_to_clusters
+    class: AssignDataToClustersModule
+    func: run

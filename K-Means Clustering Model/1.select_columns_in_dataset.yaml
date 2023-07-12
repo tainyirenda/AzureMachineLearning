@@ -1,0 +1,51 @@
+amlModuleIdentifier:
+  namespace: azureml
+  moduleName: Select Columns in Dataset
+  moduleVersion: 0.0.177
+meta:
+  collectLogs: true
+metadata:
+  annotations:
+    tags: []
+    familyId: 1ec722fa-b623-4e26-a44e-a50c6d726223
+    contact: Microsoft Corporation
+    helpDocument: https://aka.ms/aml/select-columns-in-dataset
+category: Data Transformation
+description: Selects columns to include or exclude from a dataset in an operation.
+isDeterministic: true
+inputs:
+- name: Dataset
+  type: DataFrameDirectory
+  description: Input dataset
+- name: Select Columns
+  type: ColumnPicker
+  label: Select columns
+  description: Select columns to keep in the projected dataset
+  columnPickerFor: Dataset
+outputs:
+- name: Results dataset
+  type: DataFrameDirectory
+  description: Output dataset
+implementation:
+  container:
+    amlEnvironment:
+      name: AzureML-Designer
+      version: '54'
+    command:
+    - python
+    - invoker.py
+    - python
+    - -m
+    - azureml.studio.modulehost.module_invoker
+    - --module-name=azureml.studio.modules.datatransform.manipulation.select_columns.select_columns
+    args:
+    - --dataset
+    - inputPath: Dataset
+    - --select-columns
+    - inputValue: Select Columns
+    - --results-dataset
+    - outputPath: Results dataset
+  servingEntry:
+    module: azureml.studio.modules.datatransform.manipulation.select_columns.select_columns
+    class: SelectColumnsModule
+    func: run

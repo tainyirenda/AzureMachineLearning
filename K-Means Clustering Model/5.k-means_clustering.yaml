@@ -1,0 +1,116 @@
+amlModuleIdentifier:
+  namespace: azureml
+  moduleName: K-Means Clustering
+  moduleVersion: 0.0.177
+meta:
+  collectLogs: true
+metadata:
+  annotations:
+    tags: []
+    familyId: 5049a09b-bd90-4c4e-9b46-7c87e3a36810
+    contact: Microsoft Corporation
+    helpDocument: https://aka.ms/aml/k-means-clustering
+category: Machine Learning Algorithms/Clustering
+description: Initialize K-Means clustering model.
+isDeterministic: true
+inputs:
+- name: Create trainer mode
+  type: Mode
+  default: SingleParameter
+  description: Create advanced learner options
+  options:
+  - SingleParameter:
+    - name: Number of Centroids
+      type: Int
+      label: Number of centroids
+      default: 2
+      description: Number of Centroids
+      min: 2
+    - name: Initialization
+      type: Mode
+      default: K-Means++
+      description: Initialization algorithm
+      options:
+      - Random:
+        - name: Random number seed
+          type: Int
+          optional: true
+          description: Type a value to seed the random number for centroid generator
+            used by the training model. Leave blank to have value randomly choosen
+            at first train.
+          min: 0
+          max: 4294967295
+      - K-Means++:
+        - name: Random number seed
+          type: Int
+          optional: true
+          description: Type a value to seed the random number for centroid generator
+            used by the training model. Leave blank to have value randomly choosen
+            at first train.
+          min: 0
+          max: 4294967295
+      - Default
+- name: Metric
+  type: Mode
+  default: Euclidean
+  description: Selected metric
+  options:
+  - Euclidean
+- name: Should input instances be normalized
+  type: Boolean
+  label: Normalize features
+  default: true
+  description: Indicate whether instances should be normalized
+- name: Iterations
+  type: Int
+  default: 100
+  description: Number of iterations
+  min: 1
+- name: Assign Label Mode
+  type: Mode
+  label: Assign label mode
+  default: Ignore label column
+  description: Mode of value assignment to the labeled column
+  options:
+  - Ignore label column
+  - Fill missing values
+  - Overwrite from closest to center
+outputs:
+- name: Untrained model
+  type: UntrainedModelDirectory
+  description: Untrained K-Means clustering model
+implementation:
+  container:
+    amlEnvironment:
+      name: AzureML-Designer
+      version: '54'
+    command:
+    - python
+    - invoker.py
+    - python
+    - -m
+    - azureml.studio.modulehost.module_invoker
+    - --module-name=azureml.studio.modules.ml.initialize_models.cluster.kmeans_cluster.kmeans_cluster
+    args:
+    - --create-trainer-mode
+    - inputValue: Create trainer mode
+    - - --number-of-centroids
+      - inputValue: Number of Centroids
+    - --metric
+    - inputValue: Metric
+    - --should-input-instances-be-normalized
+    - inputValue: Should input instances be normalized
+    - - --initialization
+      - inputValue: Initialization
+    - --iterations
+    - inputValue: Iterations
+    - - --random-number-seed
+      - inputValue: Random number seed
+    - --assign-label-mode
+    - inputValue: Assign Label Mode
+    - --untrained-model
+    - outputPath: Untrained model
+  servingEntry:
+    module: azureml.studio.modules.ml.initialize_models.cluster.kmeans_cluster.kmeans_cluster
+    class: KMeansClusteringModule
+    func: run

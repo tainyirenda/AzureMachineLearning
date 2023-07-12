@@ -1,0 +1,84 @@
+amlModuleIdentifier:
+  namespace: azureml
+  moduleName: Normalize Data
+  moduleVersion: 0.0.177
+meta:
+  collectLogs: true
+metadata:
+  annotations:
+    tags: []
+    familyId: 986df333-6748-4b85-923d-871df70d6aaf
+    contact: Microsoft Corporation
+    helpDocument: https://aka.ms/aml/normalize-data
+category: Data Transformation
+description: Rescales numeric data to constrain dataset values to a standard range.
+isDeterministic: true
+inputs:
+- name: Dataset
+  type: DataFrameDirectory
+  description: Input dataset
+- name: Transformation method
+  type: Mode
+  default: ZScore
+  description: Choose the mathematical method used for scaling
+  options:
+  - ZScore:
+    - name: Use 0 for constant columns when checked
+      type: Boolean
+      default: true
+      description: 'Use NaN for constant columns when unchecked or 0 when checked '
+  - MinMax:
+    - name: Use 0 for constant columns when checked
+      type: Boolean
+      default: true
+      description: 'Use NaN for constant columns when unchecked or 0 when checked '
+  - Logistic
+  - LogNormal:
+    - name: Use 0 for constant columns when checked
+      type: Boolean
+      default: true
+      description: 'Use NaN for constant columns when unchecked or 0 when checked '
+  - Tanh
+- name: Columns to transform
+  type: ColumnPicker
+  description: Select all columns to which the selected transformation should be applied
+  columnPickerFor: Dataset
+  columnSelectionCategories:
+  - Numeric
+outputs:
+- name: Transformed dataset
+  type: DataFrameDirectory
+  description: Transformed dataset
+- name: Transformation function
+  type: TransformationDirectory
+  description: Definition of the transformation function, which can be applied to
+    other datasets
+implementation:
+  container:
+    amlEnvironment:
+      name: AzureML-Designer
+      version: '54'
+    command:
+    - python
+    - invoker.py
+    - python
+    - -m
+    - azureml.studio.modulehost.module_invoker
+    - --module-name=azureml.studio.modules.datatransform.scale_and_reduce.normalize_data.normalize_data
+    args:
+    - --dataset
+    - inputPath: Dataset
+    - --transformation-method
+    - inputValue: Transformation method
+    - --columns-to-transform
+    - inputValue: Columns to transform
+    - - --use-0-for-constant-columns-when-checked
+      - inputValue: Use 0 for constant columns when checked
+    - --transformed-dataset
+    - outputPath: Transformed dataset
+    - --transformation-function
+    - outputPath: Transformation function
+  servingEntry:
+    module: azureml.studio.modules.datatransform.scale_and_reduce.normalize_data.normalize_data
+    class: NormalizeDataModule
+    func: run

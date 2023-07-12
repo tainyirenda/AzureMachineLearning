@@ -1,0 +1,66 @@
+amlModuleIdentifier:
+  namespace: azureml
+  moduleName: Train Clustering Model
+  moduleVersion: 0.0.177
+meta:
+  collectLogs: true
+metadata:
+  annotations:
+    tags: []
+    familyId: bb43c744-f7fa-41d0-ae67-74ae75da3ffd
+    contact: Microsoft Corporation
+    helpDocument: https://aka.ms/aml/train-clustering-model
+category: Model Training
+description: Train clustering model and assign data to clusters.
+isDeterministic: true
+inputs:
+- name: Untrained model
+  type: UntrainedModelDirectory
+  description: Untrained clustering model
+- name: Dataset
+  type: DataFrameDirectory
+  description: Input data source
+- name: Column Set
+  type: ColumnPicker
+  label: Column set
+  description: Column selection pattern
+  columnPickerFor: Dataset
+- name: Check for Append or Uncheck for Result Only
+  type: Boolean
+  label: Check for append or uncheck for result only
+  default: true
+  description: Whether output dataset must contain input dataset appended by assignments
+    column (Checked) or assignments column only (Unchecked)
+outputs:
+- name: Trained model
+  type: ModelDirectory
+  description: Trained clustering model
+- name: Results dataset
+  type: DataFrameDirectory
+  description: Input dataset appended by data column of assignments or assignments
+    column only
+implementation:
+  container:
+    amlEnvironment:
+      name: AzureML-Designer
+      version: '54'
+    command:
+    - python
+    - invoker.py
+    - python
+    - -m
+    - azureml.studio.modulehost.module_invoker
+    - --module-name=azureml.studio.modules.ml.train.train_clustering_model.train_clustering_model
+    args:
+    - --untrained-model
+    - inputPath: Untrained model
+    - --dataset
+    - inputPath: Dataset
+    - --column-set
+    - inputValue: Column Set
+    - --check-for-append-or-uncheck-for-result-only
+    - inputValue: Check for Append or Uncheck for Result Only
+    - --trained-model
+    - outputPath: Trained model
+    - --results-dataset
+    - outputPath: Results dataset
